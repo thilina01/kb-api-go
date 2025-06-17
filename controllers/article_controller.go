@@ -12,8 +12,17 @@ import (
 	"github.com/thilina01/kb-api-go/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+func validateTagsExist(tagIDs []primitive.ObjectID) bool {
+	collection := config.DB.Collection("tags")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": bson.M{"$in": tagIDs}}
+	count, err := collection.CountDocuments(ctx, filter)
+	return err == nil && int(count) == len(tagIDs)
+}
 
 func CreateArticle(w http.ResponseWriter, r *http.Request) {
 	var article models.Article
@@ -22,15 +31,19 @@ func CreateArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !validateTagsExist(article.Tags) {
+		http.Error(w, "One or more tag IDs are invalid", http.StatusBadRequest)
+		return
+	}
+
 	article.ID = primitive.NewObjectID()
 	article.CreatedAt = time.Now()
 	article.UpdatedAt = time.Now()
 
-	collection := config.DB.Collection("articles")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.InsertOne(ctx, article)
+	_, err := config.DB.Collection("articles").InsertOne(ctx, article)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,7 +57,6 @@ func ListArticles(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Pagination
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
 	tagFilter := r.URL.Query().Get("tag")
@@ -53,37 +65,47 @@ func ListArticles(w http.ResponseWriter, r *http.Request) {
 	if err != nil || page < 1 {
 		page = 1
 	}
-
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit < 1 {
 		limit = 10
 	}
-
 	skip := (page - 1) * limit
 
-	filter := bson.M{}
+	matchStage := bson.M{}
 	if tagFilter != "" {
 		tagID, err := primitive.ObjectIDFromHex(tagFilter)
 		if err == nil {
-			filter["tags"] = tagID
+			matchStage = bson.M{"tags": tagID}
 		}
 	}
 
-	opts := options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)).SetSort(bson.M{"createdAt": -1})
-	cursor, err := collection.Find(ctx, filter, opts)
+	pipeline := []bson.M{
+		{"$match": matchStage},
+		{"$sort": bson.M{"createdAt": -1}},
+		{"$skip": int64(skip)},
+		{"$limit": int64(limit)},
+		{"$lookup": bson.M{
+			"from":         "tags",
+			"localField":   "tags",
+			"foreignField": "_id",
+			"as":           "tagDetails",
+		}},
+	}
+
+	cursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer cursor.Close(ctx)
 
-	var articles []models.Article
-	if err := cursor.All(ctx, &articles); err != nil {
+	var enriched []bson.M
+	if err := cursor.All(ctx, &enriched); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(articles)
+	json.NewEncoder(w).Encode(enriched)
 }
 
 func UpdateArticle(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +119,11 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request) {
 	var updatedData models.Article
 	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !validateTagsExist(updatedData.Tags) {
+		http.Error(w, "One or more tag IDs are invalid", http.StatusBadRequest)
 		return
 	}
 
