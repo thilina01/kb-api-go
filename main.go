@@ -20,6 +20,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Uncomment to seed (and comment it again after)
+	// commands.SeedTags()
+
 	routes.RegisterRoutes()
 
 	handler := jsonMiddleware(http.DefaultServeMux)
