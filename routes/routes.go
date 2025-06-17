@@ -8,14 +8,24 @@ import (
 
 func RegisterRoutes() {
 	http.HandleFunc("/tags", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			controllers.CreateTag(w, r)
+		case http.MethodGet:
+			controllers.ListTags(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
 
 	http.HandleFunc("/articles", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			controllers.CreateArticle(w, r)
+		case http.MethodGet:
+			controllers.ListArticles(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
 }
