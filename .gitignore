@@ -1,0 +1,83 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of `go build`
+*.out
+
+# Build and cache directories
+/build/
+/bin/
+/dist/
+/target/
+pkg/
+coverage.out
+
+# Dependency directories (if using vendoring)
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Editor and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# OS-specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+*.log.*
+
+# Config/Secrets
+.env
+.env.*
+*.local
+*.secret
+*.key
+*.pem
+
+# MongoDB
+dump/
+*.lock
+*.ns
+*.wt
+*.wt.*
+diagnostic.data/
+journal/
+
+# Podman/Docker
+*.pid
+*.sock
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# System-specific temp files
+*.tmp
+*.temp
+*~
+
+# Node artifacts (in case of UI coexistence)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+coverage.txt
+*.lcov
+
+__debug_bin*
