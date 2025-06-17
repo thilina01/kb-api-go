@@ -1,0 +1,22 @@
+{
+  "name": "kb-api-go-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": ["--network=host"],
+  "settings": {
+    "go.toolsManagement.autoUpdate": true,
+    "go.useLanguageServer": true
+  },
+  "extensions": [
+    "golang.Go",
+    "mongodb.mongodb-vscode"
+  ],
+  "postCreateCommand": "go mod tidy",
+  "forwardPorts": [8080],
+  "remoteUser": "root",
+  "mounts": [
+    "source=kb_mongo_data,target=/data,type=volume"
+  ]
+}
