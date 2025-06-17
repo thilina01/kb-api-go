@@ -41,4 +41,7 @@ func RegisterRoutes() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	http.HandleFunc("/ping", controllers.Ping)
+
 }
