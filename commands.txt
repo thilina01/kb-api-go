@@ -1,6 +1,9 @@
 # Initialize the Go module
 go mod init github.com/thilina01/kb-api-go
 
+# Install dependencies 
+go get go.mongodb.org/mongo-driver/mongo  
+go get go.mongodb.org/mongo-driver/mongo/options
 
-
-
+# Run app
+go run main.go
