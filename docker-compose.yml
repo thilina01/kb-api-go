@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: kb-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  kb-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kb-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+
+volumes:
+  mongo_data:

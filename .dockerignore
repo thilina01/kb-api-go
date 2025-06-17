@@ -1,0 +1,8 @@
+# Ignore Git and IDE stuff
+.git
+.gitignore
+.vscode
+
+# Ignore build output
+kb-api
+*.out
