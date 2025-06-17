@@ -1,0 +1,6 @@
+# Initialize the Go module
+go mod init github.com/thilina01/kb-api-go
+
+
+
+
