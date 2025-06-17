@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/thilina01/kb-api-go/config"
@@ -83,4 +84,60 @@ func ListArticles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(articles)
+}
+
+func UpdateArticle(w http.ResponseWriter, r *http.Request) {
+	idHex := strings.TrimPrefix(r.URL.Path, "/articles/")
+	id, err := primitive.ObjectIDFromHex(idHex)
+	if err != nil {
+		http.Error(w, "Invalid article ID", http.StatusBadRequest)
+		return
+	}
+
+	var updatedData models.Article
+	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	updatedData.UpdatedAt = time.Now()
+	update := bson.M{
+		"$set": bson.M{
+			"title":     updatedData.Title,
+			"content":   updatedData.Content,
+			"tags":      updatedData.Tags,
+			"updatedAt": updatedData.UpdatedAt,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := config.DB.Collection("articles").UpdateByID(ctx, id, update)
+	if err != nil || res.MatchedCount == 0 {
+		http.Error(w, "Article not found or update failed", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(bson.M{"message": "Article updated"})
+}
+
+func DeleteArticle(w http.ResponseWriter, r *http.Request) {
+	idHex := strings.TrimPrefix(r.URL.Path, "/articles/")
+	id, err := primitive.ObjectIDFromHex(idHex)
+	if err != nil {
+		http.Error(w, "Invalid article ID", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	res, err := config.DB.Collection("articles").DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil || res.DeletedCount == 0 {
+		http.Error(w, "Article not found or delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(bson.M{"message": "Article deleted"})
 }
