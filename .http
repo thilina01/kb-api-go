@@ -1,0 +1,77 @@
+### Health check
+GET http://localhost:8080/ping
+Accept: application/json
+
+###
+
+### Create a tag
+POST http://localhost:8080/tags
+Content-Type: application/json
+
+{
+  "name": "go"
+}
+
+###
+
+### List all tags
+GET http://localhost:8080/tags
+Accept: application/json
+
+###
+
+### Create another tag
+POST http://localhost:8080/tags
+Content-Type: application/json
+
+{
+  "name": "mongodb"
+}
+
+###
+
+### Create an article (replace tag IDs with real values)
+POST http://localhost:8080/articles
+Content-Type: application/json
+
+{
+  "title": "Intro to Go",
+  "content": "Go is a fast, compiled language ideal for backend services.",
+  "tags": ["6851bda3c2799d90d82725df"]
+}
+
+###
+
+### List all articles (paginated)
+GET http://localhost:8080/articles?page=1&limit=5
+Accept: application/json
+
+###
+
+### List articles filtered by tag
+GET http://localhost:8080/articles?tag=6851b75e078a96ef9b4fa1e8
+Accept: application/json
+
+###
+
+### Get a single article by ID
+GET http://localhost:8080/articles/6851b777078a96ef9b4fa1e9
+Accept: application/json
+
+###
+
+### Update an article
+PUT http://localhost:8080/articles/6851b777078a96ef9b4fa1e9
+Content-Type: application/json
+
+{
+  "title": "Updated: Intro to Go",
+  "content": "Go is powerful, scalable, and easy to learn.",
+  "tags": ["6851b75e078a96ef9b4fa1e8"]
+}
+
+###
+
+### Delete an article
+DELETE http://localhost:8080/articles/6851b777078a96ef9b4fa1e9
+Accept: application/json
