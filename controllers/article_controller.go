@@ -168,3 +168,41 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(bson.M{"message": "Article deleted"})
 }
+
+func GetArticleByID(w http.ResponseWriter, r *http.Request) {
+	idHex := strings.TrimPrefix(r.URL.Path, "/articles/")
+	id, err := primitive.ObjectIDFromHex(idHex)
+	if err != nil {
+		http.Error(w, "Invalid article ID", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	pipeline := []bson.M{
+		{"$match": bson.M{"_id": id}},
+		{"$lookup": bson.M{
+			"from":         "tags",
+			"localField":   "tags",
+			"foreignField": "_id",
+			"as":           "tagDetails",
+		}},
+		{"$limit": 1},
+	}
+
+	cursor, err := config.DB.Collection("articles").Aggregate(ctx, pipeline)
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var result []bson.M
+	if err := cursor.All(ctx, &result); err != nil || len(result) == 0 {
+		http.Error(w, "Article not found", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(result[0])
+}

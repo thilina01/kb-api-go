@@ -31,6 +31,8 @@ func RegisterRoutes() {
 
 	http.HandleFunc("/articles/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
+		case http.MethodGet:
+			controllers.GetArticleByID(w, r)
 		case http.MethodPut:
 			controllers.UpdateArticle(w, r)
 		case http.MethodDelete:
