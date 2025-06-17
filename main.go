@@ -8,6 +8,13 @@ import (
 	"github.com/thilina01/kb-api-go/routes"
 )
 
+func jsonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	if err := config.ConnectDB(); err != nil {
 		log.Fatal(err)
@@ -15,6 +22,8 @@ func main() {
 
 	routes.RegisterRoutes()
 
+	handler := jsonMiddleware(http.DefaultServeMux)
+
 	log.Println("🚀 KB API running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
