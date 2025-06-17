@@ -25,11 +25,11 @@ go.work
 go.work.sum
 
 # Editor and IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*.bak
+# .vscode/
+# .idea/
+# *.swp
+# *.swo
+# *.bak
 
 # OS-specific
 .DS_Store
