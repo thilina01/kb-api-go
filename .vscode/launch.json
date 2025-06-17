@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Main (Local)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/main.go",
+      "env": {
+        "MONGO_URI": "mongodb://localhost:27017"
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
