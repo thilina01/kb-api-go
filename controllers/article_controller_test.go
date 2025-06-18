@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/thilina01/kb-api-go/commands"
 	"github.com/thilina01/kb-api-go/config"
 )
 
@@ -108,6 +109,7 @@ func TestListArticlesAndSearch(t *testing.T) {
 		t.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
+	commands.EnsureTextIndex()
 	// List articles
 	listReq := httptest.NewRequest(http.MethodGet, "/articles", nil)
 	listW := httptest.NewRecorder()
