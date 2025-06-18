@@ -17,3 +17,6 @@ db.articles.createIndex({ title: "text", content: "text" })
 
 # Add go.mod Dependency
 go mod tidy
+
+# Run tests
+go test ./...
