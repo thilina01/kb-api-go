@@ -4,9 +4,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/thilina01/kb-api-go/config"
 )
 
 func TestGetArticleByIDInvalid(t *testing.T) {
+	err := config.ConnectDB()
+	if err != nil {
+		t.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+
 	req := httptest.NewRequest(http.MethodGet, "/articles/invalid-id", nil)
 	w := httptest.NewRecorder()
 
@@ -18,6 +25,11 @@ func TestGetArticleByIDInvalid(t *testing.T) {
 }
 
 func TestDeleteArticleInvalidID(t *testing.T) {
+	err := config.ConnectDB()
+	if err != nil {
+		t.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+
 	req := httptest.NewRequest(http.MethodDelete, "/articles/invalid-id", nil)
 	w := httptest.NewRecorder()
 
@@ -29,6 +41,11 @@ func TestDeleteArticleInvalidID(t *testing.T) {
 }
 
 func TestSearchArticlesNoQuery(t *testing.T) {
+	err := config.ConnectDB()
+	if err != nil {
+		t.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+
 	req := httptest.NewRequest(http.MethodGet, "/articles/search", nil)
 	w := httptest.NewRecorder()
 
