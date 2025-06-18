@@ -3,7 +3,9 @@ package routes
 import (
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger"
 	"github.com/thilina01/kb-api-go/controllers"
+	_ "github.com/thilina01/kb-api-go/docs"
 )
 
 func RegisterRoutes() {
@@ -46,4 +48,6 @@ func RegisterRoutes() {
 
 	http.HandleFunc("/ping", controllers.Ping)
 
+	http.Handle("/swagger/", httpSwagger.WrapHandler)
+	// ...
 }
