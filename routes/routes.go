@@ -42,6 +42,8 @@ func RegisterRoutes() {
 		}
 	})
 
+	http.HandleFunc("/articles/search", controllers.SearchArticles)
+
 	http.HandleFunc("/ping", controllers.Ping)
 
 }

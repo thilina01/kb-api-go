@@ -209,3 +209,41 @@ func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(bson.M{"message": "Article deleted"})
 }
+
+func SearchArticles(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		http.Error(w, "Missing query param `q`", http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	pipeline := []bson.M{
+		{"$match": bson.M{"$text": bson.M{"$search": query}}},
+		{"$addFields": bson.M{"score": bson.M{"$meta": "textScore"}}},
+		{"$sort": bson.M{"score": -1}},
+		{"$lookup": bson.M{
+			"from":         "tags",
+			"localField":   "tags",
+			"foreignField": "_id",
+			"as":           "tagDetails",
+		}},
+	}
+
+	cursor, err := config.DB.Collection("articles").Aggregate(ctx, pipeline)
+	if err != nil {
+		http.Error(w, "Search failed", http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
+		http.Error(w, "Parsing error", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(results)
+}

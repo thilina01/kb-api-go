@@ -75,3 +75,7 @@ Content-Type: application/json
 ### Delete an article
 DELETE http://localhost:8080/articles/6851b777078a96ef9b4fa1e9
 Accept: application/json
+
+### Search articles by keyword
+GET http://localhost:8080/articles/search?q=go
+Accept: application/json

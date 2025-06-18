@@ -7,3 +7,12 @@ go get go.mongodb.org/mongo-driver/mongo/options
 
 # Run app
 go run main.go
+
+# connect to mongo
+mongosh "mongodb://localhost:27017"
+
+# Create index
+use kb
+db.articles.createIndex({ title: "text", content: "text" })
+
+
