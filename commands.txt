@@ -15,4 +15,5 @@ mongosh "mongodb://localhost:27017"
 use kb
 db.articles.createIndex({ title: "text", content: "text" })
 
-
+# Add go.mod Dependency
+go mod tidy
