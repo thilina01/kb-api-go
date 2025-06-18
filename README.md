@@ -1,4 +1,6 @@
 # 📘 KB API (Go + MongoDB)
+[![codecov](https://codecov.io/gh/thilina01/kb-api-go/branch/main/graph/badge.svg)](https://codecov.io/gh/thilina01/kb-api-go)
+---
 
 An internal **Knowledge Base (KB) backend API** built using Go and MongoDB. This project is containerized with Docker and compatible with VS Code Dev Containers.
 
