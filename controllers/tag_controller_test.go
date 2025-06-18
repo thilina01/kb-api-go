@@ -14,7 +14,11 @@ func TestCreateTag(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/tags", bytes.NewReader(reqBody))
 	w := httptest.NewRecorder()
 
-	config.ConnectDB() // use mock DB in actual test
+	err := config.ConnectDB()
+	if err != nil {
+		t.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+
 	CreateTag(w, req)
 
 	if w.Code != http.StatusOK {
@@ -26,7 +30,11 @@ func TestListTags(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/tags", nil)
 	w := httptest.NewRecorder()
 
-	config.ConnectDB()
+	err := config.ConnectDB()
+	if err != nil {
+		t.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+
 	ListTags(w, req)
 
 	if w.Code != http.StatusOK {
